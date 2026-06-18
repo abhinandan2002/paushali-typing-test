@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Test</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f7fb;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    width: 100%;
+    max-width: 700px;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #f0f4ff;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+textarea {
+    width: 100%;
+    height: 250px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    resize: none;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.submit {
+    background: #22c55e;
+    color: white;
+}
+
+.reset {
+    background: #ef4444;
+    color: white;
+}
+
+.copy {
+    background: #3b82f6;
+    color: white;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Paushali's Typing Challenge ❤️</h1>
+
+    <div class="stats">
+        <div class="card">
+            <div>WPM</div>
+            <div class="value" id="wpm">0</div>
+        </div>
+
+        <div class="card">
+            <div>Words</div>
+            <div class="value" id="words">0</div>
+        </div>
+
+        <div class="card">
+            <div>Time</div>
+            <div class="value" id="time">0s</div>
+        </div>
+    </div>
+
+    <textarea
+        id="typingArea"
+        placeholder="Start typing here..."
+    ></textarea>
+
+    <div class="buttons">
+        <button class="submit" onclick="submitTest()">Submit Test</button>
+        <button class="reset" onclick="resetTest()">Reset</button>
+        <button class="copy" onclick="copyScore()">Copy Result</button>
+    </div>
+</div>
+
+<script>
+
+let startTime = null;
+let timerInterval = null;
+let submitted = false;
+
+const textarea = document.getElementById("typingArea");
+const wpmDisplay = document.getElementById("wpm");
+const wordsDisplay = document.getElementById("words");
+const timeDisplay = document.getElementById("time");
+
+textarea.addEventListener("input", () => {
+
+    if (submitted) return;
+
+    if (!startTime) {
+
+        startTime = Date.now();
+
+        timerInterval = setInterval(() => {
+            const elapsed =
+                Math.floor((Date.now() - startTime) / 1000);
+
+            timeDisplay.textContent = elapsed + "s";
+        }, 1000);
+    }
+
+    const text = textarea.value.trim();
+
+    const words =
+        text === ""
+        ? 0
+        : text.split(/\s+/).length;
+
+    wordsDisplay.textContent = words;
+
+    const elapsedMinutes =
+        (Date.now() - startTime) / 60000;
+
+    const wpm =
+        elapsedMinutes > 0
+        ? Math.round(words / elapsedMinutes)
+        : 0;
+
+    wpmDisplay.textContent = wpm;
+});
+
+function submitTest() {
+
+    if (!startTime) {
+        alert("Please type something first!");
+        return;
+    }
+
+    clearInterval(timerInterval);
+
+    const words =
+        textarea.value.trim() === ""
+        ? 0
+        : textarea.value.trim().split(/\s+/).length;
+
+    const elapsedMinutes =
+        (Date.now() - startTime) / 60000;
+
+    const finalWPM =
+        elapsedMinutes > 0
+        ? Math.round(words / elapsedMinutes)
+        : 0;
+
+    wpmDisplay.textContent = finalWPM;
+
+    textarea.disabled = true;
+    submitted = true;
+
+    alert("Test Submitted!\n\nFinal WPM: " + finalWPM);
+}
+
+function resetTest() {
+
+    clearInterval(timerInterval);
+
+    startTime = null;
+    timerInterval = null;
+    submitted = false;
+
+    textarea.value = "";
+    textarea.disabled = false;
+
+    wpmDisplay.textContent = "0";
+    wordsDisplay.textContent = "0";
+    timeDisplay.textContent = "0s";
+}
+
+function copyScore() {
+
+    const result =
+        "Typing Test Result\n" +
+        "WPM: " + wpmDisplay.textContent + "\n" +
+        "Words: " + wordsDisplay.textContent + "\n" +
+        "Time: " + timeDisplay.textContent;
+
+    navigator.clipboard.writeText(result);
+
+    alert("Result copied!");
+}
+
+</script>
+
+</body>
+</html>
